@@ -1,9 +1,12 @@
 # Path Finding uisng A* Algorithm
 
 # Import modules
+from pickle import NONE
+from tempfile import gettempdirb
 import pygame
 import math
 from queue import PriorityQueue
+import json
 
 # Constants for the window
 WIDTH = 650
@@ -19,19 +22,18 @@ WHITE = (255, 255, 255)		# Nodes that could be visited
 GREY = (128, 128, 128)		# Grid
 ORANGE = (255, 165, 0)		# Start node	
 PURPLE = (128, 0, 128)		# End node	
-
 # Node class
 class Node:
 	"""
 	Class that keep track of the different nodes
 	"""
-	def __init__(self, row, col, width, total_rows):
+	def __init__(self, row, col, width, total_rows, color=WHITE):
 		# Defining attributes
 		self.row = row
 		self.col = col
 		self.x = row * width
 		self.y = col * width
-		self.color = WHITE
+		self.color = color
 		self.neighbors = []
 		self.width = width
 		self.total_rows = total_rows
@@ -176,11 +178,10 @@ def algorithm(draw, grid, start, end):
 	f_score[start] = heurisitc(start.get_pos(), end.get_pos())		# f(n) = g(n) + h(n). At the start g(0) = 0, --> f(0) = h(0) 
 
 	open_set_hash = {start}			# Keep track of the open set
-
 	while not open_set.empty():
 		# There are nodes to check out
 		for event in pygame.event.get():
-			if event.type == pygame.QUIT:
+			if event.type == pygame.QUIT: 
 				pygame.quit()
 
 		current = open_set.get()[2]		# Current node we're looking at
@@ -217,36 +218,44 @@ def algorithm(draw, grid, start, end):
 
 	return False
 
+#Read maze from Json file
+def readMaze():        
+    # Opening JSON file
+    f = open('maze.json')
+    
+    # returns JSON object as 
+    # a dictionary
+    data = json.load(f)
+    
+    # Closing file
+    f.close()
+    return data['maze_instance']
 
 def make_grid(rows, width):
-	"""
-	Function that takes rows and width as parameter and determine the grid of the game.
-	returns: the grid, wich is a list of lists.
-	"""
-	grid = []
-	gap = width // rows 		# Width for each cube
+    """
+    Function that takes rows and width as parameter and determine the grid of the game.
+    returns: the grid, which is a list of lists.
+    """
+    maze = readMaze()
+    grid = []
+    gap = width // rows 		# Width for each cube
 
-	for i in range(rows):		# i --> row
-		grid.append([])	
-		for j in range(rows):	# j --> col
-			node = Node(i, j, gap, rows)
-			grid[i].append(node)
+    for i in range(rows):		# i --> row
+        grid.append([])	
+        for j in range(rows):	# j --> col
+            if maze[i][j] == 1:
+                node = Node(i, j, gap, rows,BLACK)
+            elif maze[i][j] == 2:
+                node = Node(i, j, gap, rows,ORANGE)
+                start = node
+            elif maze[i][j] == 3:
+                node = Node(i, j, gap, rows,PURPLE)
+                end = node
+            else:
+                node = Node(i, j, gap, rows)
+            grid[i].append(node)
 
-	return grid
-
-
-def draw_grid(win, rows, width):
-	"""
-	Function that takes win, rows and width as parameters and draw the grid
-	in order to visualize it better in the game.
-	"""
-
-	gap = width // rows
-
-	for i in range(rows):
-		pygame.draw.line(win, GREY, (0, i*gap), (width, i*gap))
-		for j in range(rows):
-			pygame.draw.line(win, GREY, (j*gap, 0), (j*gap, width))
+    return grid,start,end
 
 
 def draw(win, grid, rows, width):
@@ -260,7 +269,6 @@ def draw(win, grid, rows, width):
 		for node in row:
 			node.draw(win)		# Drawing all the nodes with their corresponded color
 
-	draw_grid(win, rows, width)	# Drawing the grid on top the nodes
 	pygame.display.update()
 
 
@@ -287,11 +295,11 @@ def main(win, width):
 
 	# Making the grid
 	ROWS = 50
-	grid = make_grid(ROWS, width)
+	grid, start, end = make_grid(ROWS, width)
 
 	# Start and end position
-	start = None
-	end = None
+	# start = grid[index_start_x][index_start_y]
+	# end = grid[index_end_x][index_end_y,WIDTH,ROWS]
 
 	# Boolean variable
 	run = True
@@ -303,42 +311,6 @@ def main(win, width):
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
 				run = False
-
-
-			if pygame.mouse.get_pressed()[0]:
-				# Left mouse button pressed
-				pos = pygame.mouse.get_pos()
-				row, col = get_mouse_event(pos, ROWS, width)
-				node = grid[row][col]	# Node corresponded to the mouse event 
-
-				if not start and node != end:
-					# Making the start node
-					start = node
-					start.make_start()
-
-				elif not end and node != start:
-					# Making the end node
-					end = node
-					end.make_end()
-
-				elif node != start and node != end:
-					# Making the obsctacles
-					node.make_obstacle()
-
-
-			elif pygame.mouse.get_pressed()[2]:
-				# Right mouse button pressed
-				pos = pygame.mouse.get_pos()
-				row, col = get_mouse_event(pos, ROWS, width)
-				node = grid[row][col]	# Node corresponded to the mouse event 
-				node.reset()
-
-				if node == start:
-					start = None
-				elif node == end:
-					end = None
-
-
 			if event.type == pygame.KEYDOWN:
 				if event.key == pygame.K_SPACE and start and end:
 					# Starting the algorithm
@@ -350,9 +322,7 @@ def main(win, width):
 
 				if event.key == pygame.K_c:
 					# 'c' key was pressed to clear the scren
-					start = None
-					end = None
-					grid = make_grid(ROWS, width)
+					grid,start,end = make_grid(ROWS, width)
 
 	pygame.quit()
 

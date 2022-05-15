@@ -1,0 +1,8 @@
+ROW = COL = 50
+0 : Empty   -- Ô trống, có thể đi được
+1 : Obstack -- Vật cản
+2 : Start   -- Vị trí bắt đầu
+3 : End     -- Vị trí kết thúc
+----------------------------------------------
+Nhấn nút SPACE để bắt đầu game
+Nhấn nút "c" để clear game.
