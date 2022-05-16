@@ -226,7 +226,7 @@ def readMaze():
 
 	# returns JSON object as 
 	# a dictionary
-	i = random.randint(0, 2)
+	i = random.randint(0, 6)
 	data = json.load(f)
 
 	# Closing file
