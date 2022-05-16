@@ -7,6 +7,7 @@ import pygame
 import math
 from queue import PriorityQueue
 import json
+import random
 
 # Constants for the window
 WIDTH = 650
@@ -220,16 +221,17 @@ def algorithm(draw, grid, start, end):
 
 #Read maze from Json file
 def readMaze():        
-    # Opening JSON file
-    f = open('maze.json')
-    
-    # returns JSON object as 
-    # a dictionary
-    data = json.load(f)
-    
-    # Closing file
-    f.close()
-    return data['maze_instance']
+	# Opening JSON file
+	f = open('maze.json')
+
+	# returns JSON object as 
+	# a dictionary
+	i = random.randint(0, 2)
+	data = json.load(f)
+
+	# Closing file
+	f.close()
+	return data['maze_instance_'+str(i)]
 
 def make_grid(rows, width):
     """
