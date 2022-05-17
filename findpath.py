@@ -226,7 +226,7 @@ def readMaze():
 
 	# returns JSON object as 
 	# a dictionary
-	i = random.randint(0, 6)
+	i = random.randint(0, 8)
 	data = json.load(f)
 
 	# Closing file
@@ -331,4 +331,4 @@ def main(win, width):
 
 
 if __name__ == "__main__":
-    main(WIN, WIDTH)
+	main(WIN, WIDTH)
